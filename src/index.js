@@ -1,7 +1,9 @@
 define([
-    'highland'
+    'highland',
+    'src/input'
 ], function (
-    hl
+    hl,
+    input
 ) {
     console.log('highland loaded', hl);
 });
