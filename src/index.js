@@ -3,7 +3,19 @@ define([
     'src/input'
 ], function (
     hl,
-    input
+    Input
 ) {
     console.log('highland loaded', hl);
+
+    var mouseInput;
+
+    mouseInput = new Input({
+        element: document,
+        startEventName: 'mousedown',
+        stopEventName: 'mouseup'
+    });
+
+    mouseInput.stream.each(function (inp) {
+        console.log(inp.state, inp.duration);
+    });
 });

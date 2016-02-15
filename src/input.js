@@ -1,69 +1,46 @@
 define([
-    'highland'
+    'highland',
+    'src/emitter'
 ], function (
-    hl
+    hl,
+    Emitter
 ) {
 
-    var emitter, input, keydown, keyup, state, time;
-
-    function Emitter(element) {
-        this.eventIterator = this.eventIterator || 0;
-        this.listeners = [];
-        return {
-            on: function (eventName, listener) {
-                this.listeners.push({
-                    id: eventName + this.eventIterator++,
-                    name: eventName,
-                    fn: listener.bind(this)
-                });
-                element.addEventListener(eventName, listener);
-            }.bind(this),
-            off: function (eventName) {
-                this.listeners.forEach(function (listener) {
-                    if (listener.id === eventName || listener.name === eventName) {
-                        element.removeEventListener(eventName, listener.fn);
-                    }
-                });
-            }.bind(this)
-        }
-    }
-
     function filterRepeats(evt) {
-        var change = (evt.type === 'keydown' ? 1 : 0);
-        return (change !== state);
+        var change = (evt.type === this.startEventName ? 1 : 0);
+        return (change !== this.state);
     }
 
     function mapEvents(evt) {
-        var duration, now, result;
-        now = new Date().getTime();
-        duration = now - time;
-        time = now;
-        result = {
+        var duration, now, state;
+
+        now = evt.timeStamp;
+        state = this.state;
+        duration = now - this.time;
+
+        this.time = now;
+        this.state = (evt.type === this.startEventName ? 1 : 0);
+
+        return {
             state: state,
-            duration: duration,
-            time: now
+            duration: duration
         };
-        state = (evt.type === 'keydown' ? 1 : 0);
-        return result;
     }
 
-    state = 0;
-    time = new Date().getTime();
-    emitter = new Emitter(document);
+    function Input(config) {
+        var input, start, stop;
 
-    keydown = hl('keydown', emitter);
-    keyup = hl('keyup', emitter);
-    input = hl([keydown, keyup]).merge().map(mapEvents);
+        config = config || {};
+        this.startEventName = config.startEventName;
+        this.stopEventName = config.stopEventName;
 
-    input.each(function (inp) {
-        if (inp.state) {
-            console.log(inp.duration);
+        this.state = 0;
+        this.time = new Date().getTime();
+        this.emitter = new Emitter(config.element);
 
-        }
-    });
-
-    function Input() {
-        // TODO: Once this works, abstract it into a configurable constructor
+        start = hl(this.startEventName, this.emitter);
+        stop = hl(this.stopEventName, this.emitter);
+        this.stream = hl([start, stop]).merge().map(mapEvents.bind(this));
     }
 
     return Input;
