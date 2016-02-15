@@ -6,7 +6,14 @@ define([
 ) {
 
     interpreter = function() {
-        this.codeMap = {
+        
+    }
+    
+    interpreter.buffer = [];
+    
+    interpreter.durations = [];
+    
+    interpreter.codeMap = {
             ".-": "A",
             "-...": "B",
             "-.-.": "C",
@@ -44,12 +51,8 @@ define([
             "---..": "8",
             "----.": "9"
         };
-        
-        this.buffer = [];
-        this.durations = [];
-    }
     
-    interpreter.prototype.addDuration = function(state, duration) {
+    interpreter.addDuration = function(state, duration) {
 
         this.buffer.push({state: state, duration: duration});
         if(this.durations.length != 0 || state != 0) {
@@ -59,13 +62,13 @@ define([
         this.interpret(this.durations);
     }
     
-    interpreter.prototype.calcDurations = function(state, duration) {
+    interpreter.calcDurations = function(state, duration) {
         this.durations.push(duration);
     }
 
     // data is a list of integers where the first integer is the length of time on
     // and the next integer is the length of time off, and so on.
-    interpreter.prototype.interpret = function(data) {
+    interpreter.interpret = function(data) {
         var ons = data.filter(
             function(item, index){ 
                 return (index % 2 == 0);
@@ -75,8 +78,8 @@ define([
                 return (index % 2 == 1);
             });
 
-        console.log(ons);
-        console.log(offs);
+        //console.log(ons);
+        //console.log(offs);
 
         this.findOnGroups(ons);
         var signals = [];
@@ -97,10 +100,11 @@ define([
                 // interpreting silence
             }
         }
+        console.log(this.signalsPrettyPrint(signals));
         return this.translateDitsDashes(signals);
     }
 
-    interpreter.prototype.findOnGroups = function(ons) {
+    interpreter.findOnGroups = function(ons) {
         // possible that we only actually have one group of symbols (only dits or dashes)
 
         // find distance from one point to other points
@@ -124,7 +128,7 @@ define([
 
     }
 
-    interpreter.prototype.findOffGroups = function(offs) {
+    interpreter.findOffGroups = function(offs) {
         var sortedOffs = offs.sort(
             function comp(a, b){
                 return a - b;
@@ -142,7 +146,7 @@ define([
     }
 
     // signals is a list that can only contain certain values: ".", "-", "charbreak", "wordbreak"
-    interpreter.prototype.translateDitsDashes = function(signals) {
+    interpreter.translateDitsDashes = function(signals) {
         var message = '';
         while(signals.length > 0) {
             var messageChar = this.extractCharacter(signals);
@@ -170,7 +174,7 @@ define([
     }
 
     // signals is a list that can only contain certain values: ".", "-", "charbreak", "wordbreak"
-    interpreter.prototype.extractCharacter = function(signals) {
+    interpreter.extractCharacter = function(signals) {
         if(signals[0] =='wordbreak') {
             signals.splice(0, 1);
             return ' ';
@@ -210,4 +214,19 @@ define([
         return null;
 
     }
+    
+    interpreter.signalsPrettyPrint = function(signals) {
+        var str = '';
+        signals.forEach(function(entry){
+           if(entry == 'charbreak') {
+               str += " ";
+           } else if( entry == 'wordbreak') {
+               str += ", ";
+           } else {
+               str += entry;
+           }
+        });
+        return str;
+    }
+    
 });
