@@ -57,6 +57,25 @@ interpreter.prototype.interpret = function(data) {
     console.log(offs);
     
     this.findOnGroups(ons);
+    var signals = [];
+    for(var i = 0; i < data.length; ++i) {
+        if(i % 2 == 0) {
+            // interpreting sound
+            if(data[i] > 60) {
+                signals.push("-");
+            } else {
+                signals.push(".");
+            }
+        } else {
+            if(data[i] > 200) {
+                signals.push("wordbreak");
+            } else if(data[i] > 60){
+                signals.push("charbreak");
+            } 
+            // interpreting silence
+        }
+    }
+    return this.translateDitsDashes(signals);
 }
 
 interpreter.prototype.findOnGroups = function(ons) {
