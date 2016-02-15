@@ -15,7 +15,9 @@
   "bugs": {
     "url": "https://github.com/Bootjack/olshansky/issues"
   },
-  "dependencies": {},
+  "dependencies": {
+    "requirejs": "^2.1.22"
+  },
   "devDependencies": {
     "connect": "~3.4.1",
     "serve-static": "~1.10.2"
