@@ -1,6 +1,7 @@
 define([
     'highland',
-    'src/input'
+    'src/input',
+    'src/interpreter'
 ], function (
     hl,
     Input
@@ -14,8 +15,14 @@ define([
         startEventName: 'mousedown',
         stopEventName: 'mouseup'
     });
+    
+    
+    var morseInterpreter = new interpreter();
+    var arr2 = [".", "-", "charbreak", ".", "wordbreak", ".", ".", "charbreak"];
+    morseInterpreter.translateDitsDashes(arr2);
 
     mouseInput.stream.each(function (inp) {
+        morseInterpreter.addDuration(inp.state, inp.duration);
         console.log(inp.state, inp.duration);
     });
 });
