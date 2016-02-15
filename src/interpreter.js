@@ -52,15 +52,15 @@ define([
     interpreter.prototype.addDuration = function(state, duration) {
 
         this.buffer.push({state: state, duration: duration});
-        this.calcDurations(state, duration);
+        if(this.durations.length != 0 || state != 0) {
+            this.calcDurations(state, duration);
+        }
         console.log(this.durations);
         this.interpret(this.durations);
     }
     
     interpreter.prototype.calcDurations = function(state, duration) {
-        if(state == ((this.durations.length + 1) % 2)) {
-            this.durations.push(duration);
-        }
+        this.durations.push(duration);
     }
 
     // data is a list of integers where the first integer is the length of time on
@@ -89,9 +89,9 @@ define([
                     signals.push(".");
                 }
             } else {
-                if(data[i] > 200) {
+                if(data[i] > 400) {
                     signals.push("wordbreak");
-                } else if(data[i] > 120){
+                } else if(data[i] > 200){
                     signals.push("charbreak");
                 } 
                 // interpreting silence
@@ -119,8 +119,8 @@ define([
         for(var i = 1; i < sortedOns.length; ++i) {
             deltas.push(sortedOns[i] - sortedOns[i - 1]);
         }
-        console.log(sortedOns);
-        console.log(deltas);
+        //console.log(sortedOns);
+        //console.log(deltas);
 
     }
 
@@ -160,9 +160,9 @@ define([
                 } else {
                     index = Math.min(cbIndex, wbIndex);
                 }
+                if(index == -1) break;
                 signals.splice(0, index);
-
-                break;
+                
             }
         }
         console.log(message);
