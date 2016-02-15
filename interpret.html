@@ -1,0 +1,20 @@
+<!doctype html>
+<html>
+    <head>
+        <script src="src/interpreter.js"></script>
+    </head>
+    <body>
+
+    <script type="text/javascript">
+        (function(){
+            var arr = [1,2,3,4,5,4,3,2,1];
+            var thing = new interpreter();
+            thing.interpret(arr);
+            
+            var arr2 = [".", "-", "charbreak", ".", "wordbreak", ".", ".", "charbreak"];
+            thing.translateDitsDashes(arr2);
+        })();
+    </script>
+
+    </body>
+</html>
