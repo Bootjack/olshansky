@@ -81,20 +81,38 @@ define([
         //console.log(ons);
         //console.log(offs);
 
-        this.findOnGroups(ons);
+        var dotThreshold;
+        if(ons.length < 10) {
+            dotThreshold = 100;
+        } else {
+            dotThreshold = this.findOnGroups(ons);
+        }
+    
+        var offThresholds;
+        if(offs.length < 60) {
+            offThresholds = [];
+            offThresholds.push(dotThreshold * 1.07);
+            offThresholds.push(dotThreshold * 1.25);
+        } else {
+            offThresholds = this.findOffGroups(offs); 
+        }
+    
+        console.log(offThresholds);
+        
+        var fudgeFactor = 0.9;
         var signals = [];
         for(var i = 0; i < data.length; ++i) {
             if(i % 2 == 0) {
                 // interpreting sound
-                if(data[i] > 120) {
+                if(data[i] > 3 * dotThreshold * fudgeFactor) {
                     signals.push("-");
                 } else {
                     signals.push(".");
                 }
             } else {
-                if(data[i] > 400) {
+                if(data[i] >= offThresholds[1] * 7 * fudgeFactor) {
                     signals.push("wordbreak");
-                } else if(data[i] > 200){
+                } else if(data[i] >= offThresholds[1]* 3 * fudgeFactor){
                     signals.push("charbreak");
                 } 
                 // interpreting silence
@@ -110,21 +128,59 @@ define([
         // find distance from one point to other points
         // put the distances into bins
         // find maximal groupings that minimize distance of like points
+        
 
         var sortedOns = ons.sort(
             function comp(a, b){
                 return a - b;
             }); // ascending
-
-        if(sortedOns[sortedOns.length - 1] - sortedOns[0] < 2 * sortedOns[0]) {
-            // probably only one group according to our rough heuristic
+        
+        var range = sortedOns[sortedOns.length - 1] - sortedOns[0];
+        maxBins = 50;
+        var bins = [];
+        for(var i=0; i < maxBins; ++i) {
+            bins[i] = 0;
         }
-        var deltas = [];
-        for(var i = 1; i < sortedOns.length; ++i) {
-            deltas.push(sortedOns[i] - sortedOns[i - 1]);
+        sortedOns.forEach(function(entry){
+            index = Math.floor((entry - sortedOns[0]) * maxBins / range);
+            if( index > maxBins - 1) {
+                index = maxBins - 1;
+            }
+            ++bins[index];
+        });
+        
+        var mval = 0;
+        var maxCount = bins[0];
+        for(var i = 1; i < maxBins; ++i) {
+            if(bins[i] > maxCount) { maxCount = bins[i]; }
+            mval += Math.abs(bins[i] - bins[i-1]);
         }
+        mval /= maxCount;
+        
+        
+        var binRecs = [];
+        bins.forEach(function(entry, index){
+            binRecs.push({index: index, count: entry});
+        });
+        binRecs.sort(function(a, b){
+            return b.count - a.count; //desc
+        });
+        
+        //console.log(bins);
+        //console.log("mval: " + mval);
+        
         //console.log(sortedOns);
         //console.log(deltas);
+        
+        var thresholds = [];
+        thresholds.push( (sortedOns[0] + (range * binRecs[0].index/ maxBins)) );
+        thresholds.push( (sortedOns[0] + (range * binRecs[1].index/ maxBins)) );
+        thresholds.push( (sortedOns[0] + (range * binRecs[2].index/ maxBins)) );
+        thresholds.sort(function(a, b){
+            return a - b; // asc
+        });
+        thresholds.splice(1, 2); // keep the lowest threshold since it (probably) indicates a .
+        return thresholds[0];
 
     }
 
@@ -133,16 +189,63 @@ define([
             function comp(a, b){
                 return a - b;
             }); // ascending
+        
+        // remove anything over 5 seconds since this is probably not part of the "normal" input.
+        while(sortedOffs[sortedOffs.length - 1] > 5000) {
+            sortedOffs.splice(sortedOffs.length - 1, 1);
+        }
+        
+        var countTopPercentile = Math.floor(sortedOffs.length * 0.09);
+        if(countTopPercentile > 0) {
+            sortedOffs.splice(sortedOffs.length - countTopPercentile, countTopPercentile);
+        }
 
-        if(sortedOffs[sortedOffs.length - 1] - sortedOffs[0] < 2 * sortedOffs[0]) {
-            // probably only one group according to our rough heuristic
+        var range = sortedOffs[sortedOffs.length - 1] - sortedOffs[0];
+        maxBins = 100;
+        var bins = [];
+        for(var i=0; i < maxBins; ++i) {
+            bins[i] = 0;
         }
-        var deltas = [];
-        for(var i = 1; i < sortedOffs.length; ++i) {
-            deltas.push(sortedOffs[i] - sortedOffs[i - 1]);
+        sortedOffs.forEach(function(entry){
+            index = Math.floor((entry - sortedOffs[0]) * maxBins / range);
+            if( index > maxBins - 1) {
+                index = maxBins - 1;
+            }
+            ++bins[index];
+        });
+        
+        var mval = 0;
+        var maxCount = bins[0];
+        for(var i = 1; i < maxBins; ++i) {
+            if(bins[i] > maxCount) { maxCount = bins[i]; }
+            mval += Math.abs(bins[i] - bins[i-1]);
         }
-        console.log(sortedOffs);
-        console.log(deltas);
+        mval /= maxCount;
+        
+        var binRecs = [];
+        bins.forEach(function(entry, index){
+            binRecs.push({index: index, count: entry});
+        });
+        binRecs.sort(function(a, b){
+            return b.count - a.count; //desc
+        });
+        //console.log("range: " + range + " min: " + sortedOffs[0] + " max: " + (sortedOffs[0] + range) + " maxBins: " + maxBins);
+        //console.log("mode[0]: " + binRecs[0].count + " at " + binRecs[0].index + " " + (sortedOffs[0] + (range * binRecs[0].index/ maxBins)) );
+        //console.log("mode[1]: " + binRecs[1].count + " at " + binRecs[1].index + " " + (sortedOffs[0] + (range * binRecs[1].index/ maxBins)) );
+        //console.log("mode[2]: " + binRecs[2].count + " at " + binRecs[2].index + " " + (sortedOffs[0] + (range * binRecs[2].index/ maxBins)) );
+        
+        var thresholds = [];
+        thresholds.push( (sortedOffs[0] + (range * binRecs[0].index/ maxBins)) );
+        thresholds.push( (sortedOffs[0] + (range * binRecs[1].index/ maxBins)) );
+        thresholds.push( (sortedOffs[0] + (range * binRecs[2].index/ maxBins)) );
+        thresholds.sort(function(a, b){
+            return a - b; // asc
+        });
+        thresholds.splice(0, 1); // remove the smallest threshold since that indicates gap between characters (probably).
+        
+        //console.log(bins);
+        //console.log("mval: " + mval);
+        return thresholds;
     }
 
     // signals is a list that can only contain certain values: ".", "-", "charbreak", "wordbreak"
@@ -184,11 +287,7 @@ define([
         }
         var cbIndex = signals.indexOf("charbreak");
         var wbIndex = signals.indexOf("wordbreak");
-        // the absence of character breaks and/or word breaks could be thre result of
-        // misinterpreting a beep or a silence, but for now we will ignore this
-        if(cbIndex == -1 && wbIndex == -1 ) {
-            return null;
-        }
+
         var charEnd = 0;
         if(cbIndex == -1) {
             charEnd = wbIndex;
@@ -196,6 +295,9 @@ define([
             charEnd = cbIndex;
         } else {
             charEnd = Math.min(wbIndex, cbIndex);
+        }
+        if(charEnd == -1) {
+            charEnd = signals.length;
         }
         var code = '';
         for(var i = 0; i < charEnd; ++i) {
