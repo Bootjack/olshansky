@@ -5,6 +5,8 @@ body, body * {
 
 body {
     background-color: #000;
+    display: flex;
+    flex-direction: column;
     height: 100%;
     left: 0;
     position: absolute;
@@ -12,11 +14,16 @@ body {
     width: 100%;
 }
 
+#olshky-output-element {
+    background-color: #ddd;
+    color: #000;
+    flex: 0 0 auto;
+    font-size: 2em;
+    padding: 1em;
+    white-space: pre;
+}
+
 #olshky-input-element {
     background-color: #222;
-    height: 100%;
-    left: 0;
-    position: absolute;
-    top: 0;
-    width: 100%;
+    flex: 1 1 auto;
 }
