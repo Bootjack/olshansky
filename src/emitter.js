@@ -14,7 +14,7 @@ define([
             this.listeners.push({
                 id: eventName + this.eventIterator++,
                 name: eventName,
-                fn: listener.bind(this)
+                fn: listener
             });
             this.element.addEventListener(eventName, listener);
         },

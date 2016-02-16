@@ -2,10 +2,17 @@
 <html>
 <head>
     <title>Olshansky</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="src/index.css"/>
 </head>
 <body>
-    <div id="olshky-output-element"></div>
+    <div id="olshky-output-element">
+        <div id="olshky-output-content"></div>
+    </div>
+    <div id="olshky-buffer-element">
+        <div id="olshky-buffer-prompt">&#x27a4;</div>
+        <div id="olshky-buffer-content"></div>
+    </div>
     <div id="olshky-input-element"></div>
     <script src="node_modules/requirejs/require.js" data-main="main.js"></script>
 </body>

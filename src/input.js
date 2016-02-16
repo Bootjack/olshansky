@@ -5,21 +5,9 @@ define([
     hl,
     Emitter
 ) {
-    function clearInterrupt() {
-        clearTimeout(this.interruptInterval);
-        this.interruptInterval = setTimeout(interruptStream.bind(this), 1000);
-    }
-
     function filterRepeats(evt) {
         var change = (evt.type === this.startEventName ? 1 : 0);
         return (change !== this.state);
-    }
-
-    function interruptStream() {
-        this.stream.write({
-            state: 0,
-            duration: 1000
-        });
     }
 
     function mapEvents(evt) {
@@ -28,7 +16,6 @@ define([
         now = evt.timeStamp;
         state = this.state;
         duration = now - this.time;
-
         this.time = now;
         this.state = (evt.type === this.startEventName ? 1 : 0);
 
@@ -51,8 +38,6 @@ define([
 
         start = hl(this.startEventName, this.emitter);
         stop = hl(this.stopEventName, this.emitter);
-
-        start.fork().each(clearInterrupt.bind(this));
 
         this.stream = hl([start.fork(), stop.fork()]).merge()
             .filter(filterRepeats.bind(this))

@@ -1,4 +1,5 @@
 body, body * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
@@ -11,19 +12,54 @@ body {
     left: 0;
     position: absolute;
     top: 0;
+    -webkit-user-select: none;
+    user-select: none;
     width: 100%;
 }
 
-#olshky-output-element {
-    background-color: #ddd;
-    color: #000;
-    flex: 0 0 auto;
+#olshky-output-content,
+#olshky-buffer-content {
     font-size: 2em;
-    padding: 1em;
-    white-space: pre;
+    min-height: 1em;
+    white-space: pre-wrap;
+}
+
+#olshky-output-element {
+    background-color: #eee;
+    color: #333;
+    flex: 1 1 auto;
+    overflow: auto;
+}
+
+#olshky-output-content {
+    padding: 0 1em;
+}
+
+#olshky-buffer-element {
+    display: flex;
+    flex: 0 0 auto;
+}
+
+#olshky-buffer-prompt {
+    background-color: #aaffee;
+    color: #666;
+    flex: 0 0 auto;
+    padding: 0.5em;
+}
+
+#olshky-buffer-content {
+    background-color: #fff;
+    color: #333;
+    flex: 1 1 auto;
+    padding: 0 1em 0 0.5em;
 }
 
 #olshky-input-element {
     background-color: #222;
-    flex: 1 1 auto;
+    flex: 0 0 25%;
+}
+
+#olshky-input-element.active {
+    background-color: #cf3;
+    box-shadow: inner 0 0 5px #ff3;
 }
