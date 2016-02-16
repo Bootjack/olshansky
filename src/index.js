@@ -77,13 +77,14 @@ define([
         //console.log('text', val);
     });
 
-    textOutput.text.fork().each(function (val) {
-        if (val === mapping.signals.break.line) {
-            outputElement.textContent += bufferElement.textContent + val;
+    textOutput.text.fork().each(function (text) {
+        var html = '<span style="filter: opacity(' + text.confidence + ');">' + text.character + '</span>';
+        if (text.character === mapping.signals.break.line) {
+            outputElement.innerHTML += bufferElement.innerHTML + html;
             outputElement.parentElement.scrollTop = outputElement.offsetHeight - outputElement.parentElement.offsetHeight;
-            bufferElement.textContent = '';
+            bufferElement.innerHTML = '';
         } else {
-            bufferElement.textContent += val;
+            bufferElement.innerHTML += html;
         }
     });
 

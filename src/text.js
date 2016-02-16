@@ -24,25 +24,34 @@ define([
     }
 
     function reduceToText(prev, signal) {
-        var character;
+        var character, confidence;
         if (signal.value === SIG.dit.mark || signal.value === SIG.dah.mark) {
             this.character += signal.value;
+            this.confidence += signal.confidence;
             if (!CHAR[this.character]) {
                 character = '?';
+                confidence = 0.5;
                 this.character = '';
+                this.confidence = 0;
             }
         } else if (signal.value !== SIG.dit.rest) {
             if (CHAR[this.character]) {
                 prev += CHAR[this.character];
                 character = CHAR[this.character];
+                confidence = this.confidence / this.character.length;
             } else {
                 prev += signal.value;
                 character = signal.value;
+                confidence = 1;
             }
             this.character = '';
+            this.confidence = 0;
         }
         if (character) {
-            this.text.write(character);
+            this.text.write({
+                character: character,
+                confidence: confidence
+            });
         }
         return prev;
     }

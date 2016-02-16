@@ -17,7 +17,7 @@ define([
     function clearInterrupt(inp) {
         clearTimeout(this.interruptTimeout);
         if (inp.state) {
-            this.interruptTimeout = setTimeout(periodicInterrupt.bind(this), 5 * this.cadence);
+            this.interruptTimeout = setTimeout(periodicInterrupt.bind(this), 4 * this.cadence);
         }
     }
 
@@ -30,9 +30,8 @@ define([
             state: 0,
             duration: (repeat ? 9 : 4) * this.cadence
         });
-        clearTimeout(this.interruptTimeout);
         if (!repeat) {
-            this.interruptTimeout = setTimeout(periodicInterrupt.bind(this, true), 12 * this.cadence);
+            this.interruptTimeout = setTimeout(periodicInterrupt.bind(this, true), 9 * this.cadence);
         }
     }
 
@@ -41,14 +40,17 @@ define([
         length = inp.duration / this.cadence;
         if (length < 2) {
             signal = (inp.state ? SIG.dit.mark : SIG.dit.rest);
+            confidence = Math.min(1, Math.max(0.5, Math.abs(length - inp.duration) / this.cadence));
         } else if (length < 5) {
             signal = (inp.state ? SIG.dah.mark : SIG.dah.rest);
+            confidence = Math.min(1, Math.max(0.5, Math.abs(length - inp.duration) / (3 * this.cadence)));
         } else {
             signal = SIG.break.line;
+            confidence = 1;
         }
         return {
             value: signal,
-            confidence: 1 // TODO: Make this a real representation of confidence
+            confidence: confidence
         };
     }
 
