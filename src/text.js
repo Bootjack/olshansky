@@ -27,6 +27,10 @@ define([
         var character;
         if (signal.value === SIG.dit.mark || signal.value === SIG.dah.mark) {
             this.character += signal.value;
+            if (!CHAR[this.character]) {
+                character = '?';
+                this.character = '';
+            }
         } else if (signal.value !== SIG.dit.rest) {
             if (CHAR[this.character]) {
                 prev += CHAR[this.character];
@@ -35,8 +39,10 @@ define([
                 prev += signal.value;
                 character = signal.value;
             }
-            this.text.write(character);
             this.character = '';
+        }
+        if (character) {
+            this.text.write(character);
         }
         return prev;
     }

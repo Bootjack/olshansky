@@ -1,13 +1,12 @@
 
 define([
-    'highland',
-    'src/mapping'
+    'highland'
 ], function (
-    hl,
-    codeMap
+    hl
 ) {
 
     interpreter = function() {
+<<<<<<< HEAD
 
     }
 
@@ -15,6 +14,15 @@ define([
 
     interpreter.durations = [];
 
+=======
+
+    }
+
+    interpreter.buffer = [];
+
+    interpreter.durations = [];
+
+>>>>>>> Import dynamic cadence adjustment and lean up interrupt timings
     interpreter.codeMap = {
             ".-": "A",
             "-...": "B",
@@ -53,7 +61,11 @@ define([
             "---..": "8",
             "----.": "9"
         };
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> Import dynamic cadence adjustment and lean up interrupt timings
     interpreter.addDuration = function(state, duration) {
 
         this.buffer.push({state: state, duration: duration});
@@ -63,7 +75,11 @@ define([
         console.log(this.durations);
         this.interpret(this.durations);
     }
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> Import dynamic cadence adjustment and lean up interrupt timings
     interpreter.calcDurations = function(state, duration) {
         this.durations.push(duration);
     }
@@ -82,6 +98,7 @@ define([
 
         //console.log(ons);
         //console.log(offs);
+<<<<<<< HEAD
 
         var dotThreshold;
         if(ons.length < 10) {
@@ -101,6 +118,27 @@ define([
 
         console.log(offThresholds);
 
+=======
+
+        var dotThreshold;
+        if(ons.length < 10) {
+            dotThreshold = 100;
+        } else {
+            dotThreshold = this.findOnGroups(ons);
+        }
+
+        var offThresholds;
+        if(offs.length < 60) {
+            offThresholds = [];
+            offThresholds.push(dotThreshold * 1.07);
+            offThresholds.push(dotThreshold * 1.25);
+        } else {
+            offThresholds = this.findOffGroups(offs);
+        }
+
+        console.log(offThresholds);
+
+>>>>>>> Import dynamic cadence adjustment and lean up interrupt timings
         var fudgeFactor = 0.9;
         var signals = [];
         for(var i = 0; i < data.length; ++i) {
@@ -132,11 +170,16 @@ define([
         // find maximal groupings that minimize distance of like points
 
 
+
         var sortedOns = ons.sort(
             function comp(a, b){
                 return a - b;
             }); // ascending
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> Import dynamic cadence adjustment and lean up interrupt timings
         var range = sortedOns[sortedOns.length - 1] - sortedOns[0];
         maxBins = 50;
         var bins = [];
@@ -150,7 +193,11 @@ define([
             }
             ++bins[index];
         });
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> Import dynamic cadence adjustment and lean up interrupt timings
         var mval = 0;
         var maxCount = bins[0];
         for(var i = 1; i < maxBins; ++i) {
@@ -158,8 +205,13 @@ define([
             mval += Math.abs(bins[i] - bins[i-1]);
         }
         mval /= maxCount;
+<<<<<<< HEAD
 
 
+=======
+
+
+>>>>>>> Import dynamic cadence adjustment and lean up interrupt timings
         var binRecs = [];
         bins.forEach(function(entry, index){
             binRecs.push({index: index, count: entry});
@@ -167,6 +219,7 @@ define([
         binRecs.sort(function(a, b){
             return b.count - a.count; //desc
         });
+<<<<<<< HEAD
 
         //console.log(bins);
         //console.log("mval: " + mval);
@@ -174,6 +227,15 @@ define([
         //console.log(sortedOns);
         //console.log(deltas);
 
+=======
+
+        //console.log(bins);
+        //console.log("mval: " + mval);
+
+        //console.log(sortedOns);
+        //console.log(deltas);
+
+>>>>>>> Import dynamic cadence adjustment and lean up interrupt timings
         var thresholds = [];
         thresholds.push( (sortedOns[0] + (range * binRecs[0].index/ maxBins)) );
         thresholds.push( (sortedOns[0] + (range * binRecs[1].index/ maxBins)) );
@@ -202,12 +264,31 @@ define([
             sortedOffs.splice(sortedOffs.length - countTopPercentile, countTopPercentile);
         }
 
+<<<<<<< HEAD
+        // remove anything over 5 seconds since this is probably not part of the "normal" input.
+        while(sortedOffs[sortedOffs.length - 1] > 5000) {
+            sortedOffs.splice(sortedOffs.length - 1, 1);
+        }
+
+        var countTopPercentile = Math.floor(sortedOffs.length * 0.09);
+        if(countTopPercentile > 0) {
+            sortedOffs.splice(sortedOffs.length - countTopPercentile, countTopPercentile);
+        }
+
         var range = sortedOffs[sortedOffs.length - 1] - sortedOffs[0];
         maxBins = 100;
         var bins = [];
         for(var i=0; i < maxBins; ++i) {
             bins[i] = 0;
         }
+=======
+        var range = sortedOffs[sortedOffs.length - 1] - sortedOffs[0];
+        maxBins = 100;
+        var bins = [];
+        for(var i=0; i < maxBins; ++i) {
+            bins[i] = 0;
+        }
+>>>>>>> Import dynamic cadence adjustment and lean up interrupt timings
         sortedOffs.forEach(function(entry){
             index = Math.floor((entry - sortedOffs[0]) * maxBins / range);
             if( index > maxBins - 1) {
@@ -215,7 +296,11 @@ define([
             }
             ++bins[index];
         });
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> Import dynamic cadence adjustment and lean up interrupt timings
         var mval = 0;
         var maxCount = bins[0];
         for(var i = 1; i < maxBins; ++i) {
@@ -271,7 +356,6 @@ define([
                 }
                 if(index == -1) break;
                 signals.splice(0, index);
-
             }
         }
         console.log(message);
@@ -306,7 +390,7 @@ define([
             code += signals[i];
         }
 
-        var decodedChar = codeMap[code];
+        var decodedChar = this.codeMap[code];
         if(decodedChar){
             //console.log(decodedChar);
             signals.splice(0, code.length);

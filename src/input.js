@@ -5,17 +5,19 @@ define([
     hl,
     Emitter
 ) {
+
     function filterRepeats(evt) {
         var change = (evt.type === this.startEventName ? 1 : 0);
         return (change !== this.state);
     }
-
+    
     function mapEvents(evt) {
         var duration, now, state;
 
         now = evt.timeStamp;
         state = this.state;
         duration = now - this.time;
+
         this.time = now;
         this.state = (evt.type === this.startEventName ? 1 : 0);
 

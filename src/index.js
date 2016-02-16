@@ -68,6 +68,11 @@ define([
         //console.log('morse', signal.value);
     });
 
+    morseOutput.monitor.fork().each(function (cadence) {
+        console.log(cadence);
+        inputElement.textContent = cadence;
+    });
+
     textOutput.stream.fork().each(function (val) {
         //console.log('text', val);
     });
