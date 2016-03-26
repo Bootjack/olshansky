@@ -2,7 +2,8 @@
 A Morse Code input and interpretation library
 Created for ATS Hack Day 2016
 
-## [Live Demo](http://bootjack.github.io/olshansky/)
+## Demo
+[http://bootjack.github.io/olshansky/](http://bootjack.github.io/olshansky/)
 
 ## Conventions with git
 Initial setup
